@@ -178,7 +178,7 @@ test_objects <- memoise::memoise(function(objects = default_objects()) {
 })
 
 #' Function to force reload the test object cache, if needed.
-#' 
+#'
 #' @importFrom memoise forget
 force_reload_test_objects <- function() {
   memoise::forget(test_objects)
