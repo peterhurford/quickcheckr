@@ -2,8 +2,8 @@ context("generate")
 
 desired_classes <- c("numeric", "integer", "list", "character", "logical",
   "matrix", "data.frame", "NULL", "table", "factor")
-objects <- checkr:::default_objects()
-testing_frame <- checkr:::test_objects()
+objects <- default_objects()
+testing_frame <- test_objects()
 
 describe("objects", {
   test_that("objects has one of every class", {

@@ -9,7 +9,8 @@ num \%within\% range
 \arguments{
 \item{num}{numeric. The number to check.}
 
-\item{range}{numeric. A vector with one number specifying the lower-bound and another number specifying the upper-bound.}
+\item{range}{numeric. A vector with one number specifying the lower-bound and another
+number specifying the upper-bound.}
 }
 \description{
 Define if a number is within a certain range.

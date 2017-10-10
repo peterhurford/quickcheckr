@@ -52,7 +52,6 @@ random_string <- ensure(
 ```
 
 
-
 ## Using Quickcheck
 
 #### The Random String
