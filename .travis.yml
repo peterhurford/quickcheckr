@@ -11,12 +11,10 @@ r_github_packages:
     - jimhester/lintr
     - jimhester/covr
 script:
-  - R -e 'r <- rcmdcheck::rcmdcheck(".", args = c("--no-manual")); l <- lintr::lint_package("."); print(l); devtools::install("."); devtools::test(); quit(save = "no", status = if (length(c(r$errors, r$warnings, l)) > 0) { 1 } else { 0 }, runLast = FALSE)'
+  - R -e 'devtools::install("."); r <- rcmdcheck::rcmdcheck(".", args = c("--no-manual")); l <- lintr::lint_package("."); if (length(r$errors) > 0) { devtools::test() }; print(l); quit(save = "no", status = if (length(c(r$errors, r$warnings, r$notes, l)) > 0) { 1 } else { 0 }, runLast = FALSE)'
 after_success:
   - R -e 'library(covr); coveralls()'
 env:
   - global:
     - CI=TRUE
-    - WARNINGS_ARE_ERRORS=1
-    - _R_CHECK_FORCE_SUGGESTS_=0
     - LINTR_COMMENT_BOT=false
