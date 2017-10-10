@@ -1,3 +1,7 @@
+verify_condition <- function(condition, env) {
+  if (identical(eval(condition, envir = env), FALSE)) {deparse(condition)}
+  else {NULL}
+}
 #' Validate checks that certain facts are true.
 #'
 #' @param ... list. A list of conditions to check.
@@ -7,7 +11,7 @@
 #' @export
 validate <- function(...) {
   conditions <- substitute(list(...))
-  checkr:::validate_(conditions)
+  validate_(conditions)
 }
 
 #' Validate without NSE.
@@ -21,14 +25,10 @@ validate_ <- function(conditions, env = parent.frame(2)) {
   if (conditions[[1]] != substitute(list) && is.call(conditions)) {
     conditions <- list(conditions)
   }
-  errors <- Filter(Negate(is.null), lapply(conditions, checkr:::verify_condition, env = env))
+  errors <- Filter(Negate(is.null), lapply(conditions, verify_condition,
+                                           env = env))
   if (length(errors) > 0) {
     stop("Error on ", paste(errors, collapse = ", "), call. = FALSE)
   }
   TRUE
-}
-
-verify_condition <- function(condition, env) {
-  if (identical(eval(condition, envir = env), FALSE)) { deparse(condition) }
-  else { NULL }
 }

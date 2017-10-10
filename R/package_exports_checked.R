@@ -4,9 +4,11 @@
 #' @param stop logical. If TRUE, errors and tells you which functions are
 #'    not checked. If FALSE, the function will return FALSE.
 #' @return either a logical or an error.
+#' @importFrom utils installed.packages
+#' @importFrom devtools as.package
 #' @export
 package_exports_checked <- function(package, stop = TRUE) {
-  if (!(package %in% rownames(installed.packages()))) {
+  if (!(package %in% rownames(utils::installed.packages()))) {
     package <- devtools::as.package(package)$package
   }
   exports <- getNamespaceExports(package)
@@ -14,14 +16,14 @@ package_exports_checked <- function(package, stop = TRUE) {
     fn <- get(export, envir = getNamespace(package))
     if (checkr::should_be_checked(fn)) {
       checkr::is.validated_function(fn)
-    } else { TRUE }})
+    } else {TRUE}})
   names(errors) <- exports
   errors <- Filter(function(x) identical(x, FALSE), errors)
   if (length(errors) > 0) {
     if (isTRUE(stop)) {
       stop("The following functions are not checked by checkr: ",
-        paste0(names(errors), collapse = ", "))
-    } else { return(FALSE) }
+           paste0(names(errors), collapse = ", "))
+    } else {return(FALSE)}
   }
   TRUE
 }

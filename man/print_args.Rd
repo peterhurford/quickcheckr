@@ -13,6 +13,7 @@ print_args(x)
 Print function arguments
 }
 \examples{
+library(checkr)
 l <- list(x = seq(3), y = seq(4))
-checkr:::print_args(l)
+print_args(l)
 }

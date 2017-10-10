@@ -16,17 +16,17 @@
   if (is.name(substitute(expected_class))) {
     expected_class <- deparse(substitute(expected_class))
   }
-  checkr:::`%is_%`(match_object, expected_class)
+  `%is_%`(match_object, expected_class)
 }
 
 
 `%is_%` <- function(match_object, expected_class) {
   if (length(expected_class) > 1) {
     return(all(vapply(expected_class, `%is%`,
-      match_object = match_object, logical(1))))
+                      match_object = match_object, logical(1))))
   }
-
-
+  
+  
   if (identical(expected_class, NULL)) {
     expected_class <- "NULL"
   }
@@ -39,7 +39,7 @@
   if (identical(expected_class, "dataframe")) {
     expected_class <- "data.frame"
   }
-
+  
   if (identical(tolower(expected_class), "any")) {
     return(TRUE)
   }
@@ -71,5 +71,5 @@
   if (is.name(substitute(expected_class))) {
     expected_class <- deparse(substitute(expected_class))
   }
-  !(checkr:::`%is_%`(match_object, expected_class))
+  !(`%is_%`(match_object, expected_class))
 }

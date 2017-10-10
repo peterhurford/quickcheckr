@@ -8,6 +8,7 @@
 #'     post = list(result %is% numeric),
 #'     function(x, y) { x + y })
 #' @return The original function, but also of class validated_function, with added validations.
+#' @importFrom utils head
 #' @export
 ensure <- function(checker_fn, preconditions = list(), postconditions = list()) {
   if (methods::is(checker_fn, "validated_function")) {
@@ -21,61 +22,61 @@ ensure <- function(checker_fn, preconditions = list(), postconditions = list()) 
       eval(expr, parent.frame(3))
     })
     formals <- names(formals(checker_fn))
-
+    
     # Goal here is to (a) impute names the user doesn't give with the formals
     # and (b) detect if any formals are missing so we can place in their defaults
     # or error
     missing_formals <- setdiff(formals, names(args))
     if (is.null(names(args))) {
-      names(args) <- head(formals, length(args))
+      names(args) <- utils::head(formals, length(args))
     } else {
       empty_names <- vapply(names(args), checkr::is.empty, logical(1))
-      names(args)[empty_names] <- head(missing_formals, sum(empty_names))
+      names(args)[empty_names] <- utils::head(missing_formals, sum(empty_names))
     }
-
+    
     # Get all the non-empty arguments to impute missing arguments.
     has_default_arg <- function(arg) { nchar(arg) > 0 ||
-                                       is.null(arg) ||
-                                       identical(arg, "") ||
-                                       identical(arg, NA) }
+        is.null(arg) ||
+        identical(arg, "") ||
+        identical(arg, NA) }
     default_args <- Filter(has_default_arg, formals(checker_fn))
     for (pos in seq_along(default_args)) {
       if (!(names(default_args)[[pos]] %in% names(args))) {
         args[[names(default_args)[[pos]]]] <- default_args[[pos]]
       }
     }
-
+    
     # Sometimes we have args that have a default of NULL that are missing.
     # This is difficult to populate, but alas.
     missing_defaults <- setdiff(names(default_args), names(args))
     if (length(missing_defaults) > 0) {
       length(args) <- length(args) + length(missing_defaults)
       names(args) <- Filter(Negate(checkr::is.empty),
-        union(names(args), missing_defaults))
+                            union(names(args), missing_defaults))
     }
-
+    
     # Run the preconditions
     tryCatch({
       args <- lapply(args, function(expr) eval(expr, envir = parent.frame(3)))
-      checkr:::validate_(pre, env = args)
+      validate_(pre, env = args)
     }, error = function(e) {
-        e <- as.character(e)
-        flag <- "object '.*not found"
-        if (grepl(flag, e)) {
-          missing_args_error(gsub("' not found", "",
-            gsub("object '", "", regmatches(e, regexpr(flag, e)))))
-        } else { stop(e) }
-      })
-
+      e <- as.character(e)
+      flag <- "object '.*not found"
+      if (grepl(flag, e)) {
+        missing_args_error(gsub("' not found", "",
+                                gsub("object '", "", regmatches(e, regexpr(flag, e)))))
+      } else { stop(e) }
+    })
+    
     # Now we need to add the result to the list of arguments so we can post-validate
     # Assignment here must be careful to assign NULL correctly
     # http://stackoverflow.com/questions/7944809/assigning-null-to-a-list-element-in-r
     args["result"] <- list(do.call(checker_fn, args))
-
-    checkr:::validate_(post, env = args)
+    
+    validate_(post, env = args)
     args$result
   }
-
+  
   formals(validated_fn) <- formals(checker_fn)
   class(validated_fn) <- append(class(checker_fn), "validated_function", 0)
   validated_fn
@@ -113,11 +114,11 @@ print.validated_function <- function(x, ...) {
     preconditions = preconditions(x),
     postconditions = postconditions(x),
     fn = get_prevalidated_fn(x)),
-  ...)
+    ...)
 }
 
 
 missing_args_error <- function(missing_args) {
   stop("Error on missing arguments: ",
-    paste0(missing_args, collapse = ", "), call. = FALSE)
+       paste0(missing_args, collapse = ", "), call. = FALSE)
 }
